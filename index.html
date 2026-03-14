@@ -385,18 +385,206 @@ body::before {
 .modal-btn:active { transform: scale(0.96); }
 .modal-cancel  { background: rgba(255,255,255,0.09); color: var(--text); border: 1.5px solid var(--border); }
 .modal-confirm { background: var(--c1); color: #fff; }
+
+/* ════════════════════════════
+   HUB SCREEN — game selection
+════════════════════════════ */
+#hub-screen { flex-direction: column; align-items: center; justify-content: center; gap: 0; }
+.hub-header { text-align: center; margin-bottom: 32px; }
+.hub-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 42px;
+  background: linear-gradient(135deg, var(--c1), var(--c4));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 6px;
+}
+.hub-sub { font-size: 15px; color: var(--muted); }
+.hub-cards { display: flex; gap: 24px; align-items: stretch; }
+.hub-card {
+  width: 260px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid var(--border);
+  border-radius: 22px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.hub-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.09); }
+.hub-card:active { transform: scale(0.97); }
+.hub-card-icon { font-size: 56px; line-height: 1; }
+.hub-card-title { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--text); }
+.hub-card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+.hub-card-badge {
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  margin-top: 4px;
+}
+.hub-card.quiz-card { border-color: rgba(255,107,107,0.4); }
+.hub-card.quiz-card:hover { border-color: var(--c1); box-shadow: 0 8px 32px rgba(255,107,107,0.25); }
+.hub-card.quiz-card .hub-card-badge { background: rgba(255,107,107,0.2); color: #ffb3b3; }
+.hub-card.memory-card { border-color: rgba(162,155,254,0.4); }
+.hub-card.memory-card:hover { border-color: var(--c4); box-shadow: 0 8px 32px rgba(162,155,254,0.25); }
+.hub-card.memory-card .hub-card-badge { background: rgba(162,155,254,0.2); color: #c8c4ff; }
+
+/* ════════════════════════════
+   MEMORY CARD GAME SCREEN
+════════════════════════════ */
+#memory-screen {
+  flex-direction: column;
+  background: var(--bg);
+  overflow-y: auto;
+}
+/* memory topbar */
+.mem-topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 18px; height: 44px;
+  background: rgba(0,0,0,0.35);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.mem-topbar-title { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--text); flex: 1; text-align: center; }
+
+/* memory game body */
+.mem-body {
+  flex: 1; display: flex; align-items: flex-start; justify-content: center;
+  padding: 20px 16px; overflow-y: auto;
+}
+.mem-game-wrap { width: 100%; max-width: 640px; }
+
+/* override memory card game colors for dark theme */
+#memory-screen { --mem-bg: #1a1a2e; --mem-panel: #0f3460; --mem-border: rgba(255,255,255,0.13); --mem-text: #EAEAEA; --mem-muted: #9BA8C0; }
+
+.mem-header { text-align: center; margin-bottom: 16px; }
+.mem-header h1 { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--text); }
+.mem-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.mem-lv-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+.mem-lv-btn {
+  padding: 7px 18px; border-radius: 999px;
+  border: 2px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--muted); font-family: inherit;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.mem-lv-btn:hover { border-color: var(--c4); color: var(--c4); }
+.mem-lv-btn.active { background: var(--c4); border-color: var(--c4); color: #fff; font-weight: 700; }
+
+.mem-hud {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-bottom: 10px;
+}
+.mem-stat {
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px; border: 1.5px solid var(--border);
+  padding: 8px; text-align: center;
+}
+.mem-stat-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.mem-stat-val { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--text); }
+#m-score-stat .mem-stat-val { color: #a8f0eb; }
+#m-miss-stat  .mem-stat-val { color: #ffb3b3; }
+
+.mem-timer-wrap { height: 7px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 10px; overflow: hidden; }
+.mem-timer-bar  { height: 100%; border-radius: 4px; background: var(--c2); transition: width 0.08s linear, background 0.4s; }
+
+.mem-phase-msg { text-align: center; font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 8px; min-height: 22px; }
+
+.mem-kw-box {
+  display: none;
+  background: var(--c4);
+  border-radius: 14px; padding: 12px 20px;
+  text-align: center; margin-bottom: 10px;
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.mem-kw-label { font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 3px; letter-spacing: 1px; text-transform: uppercase; }
+.mem-kw-word  { font-family: 'Fredoka One', cursive; font-size: 28px; color: #fff; }
+
+.mem-card-grid { display: grid; gap: 10px; margin-bottom: 14px; }
+.mem-card {
+  border-radius: 14px; border: 2px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.2s;
+  overflow: hidden; aspect-ratio: 1; position: relative;
+}
+.mem-card:hover:not(.mem-revealed):not(.mem-back) { transform: translateY(-4px) scale(1.04); }
+.mem-card-inner { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; gap:5px; }
+.mem-card-emoji { font-size: 38px; line-height: 1; }
+.mem-card-label { font-size: 12px; font-weight: 500; color: var(--muted); text-align: center; }
+.mem-back { background: linear-gradient(135deg, #0f3460 0%, #1a1a4e 100%); border-color: var(--c4); cursor: pointer; }
+.mem-back:hover { transform: translateY(-4px) scale(1.04); }
+.mem-back-sym { font-family: 'Fredoka One', cursive; font-size: 28px; color: rgba(255,255,255,0.2); }
+.mem-back-pat { position:absolute; inset:0; opacity:0.06; background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%); background-size:12px 12px; }
+.mem-card.mem-correct { border-color: var(--c2); background: rgba(78,205,196,0.15); cursor: default; animation: bounceCard 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.mem-card.mem-correct .mem-card-label { color: #a8f0eb; }
+.mem-card.mem-wrong { border-color: var(--c1); background: rgba(255,107,107,0.15); animation: shakeCard 0.35s; }
+.mem-card.mem-revealed { opacity: 0.3; pointer-events: none; transform: scale(0.96); }
+.mem-correct-badge { position:absolute; top:6px; right:6px; width:18px; height:18px; background:var(--c2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700; }
+
+.mem-big-panel {
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid var(--border);
+  border-radius: 18px; padding: 28px 24px;
+  text-align: center; margin-bottom: 14px;
+}
+.mem-big-panel-icon { font-size: 48px; margin-bottom: 10px; }
+.mem-big-panel h2 { font-family: 'Fredoka One', cursive; font-size: 24px; color: var(--text); margin-bottom: 8px; }
+.mem-big-panel p { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+.mem-score-big { display:block; font-family:'Fredoka One',cursive; font-size:42px; color: #a8f0eb; margin: 8px 0 12px; }
+.mem-btn-primary {
+  display: inline-block; padding: 13px 32px;
+  background: var(--c4); color: #fff; border: none;
+  border-radius: 50px; font-family: 'Fredoka One', cursive; font-size: 18px;
+  cursor: pointer; transition: transform 0.15s;
+  box-shadow: 0 4px 16px rgba(162,155,254,0.4);
+}
+.mem-btn-primary:active { transform: scale(0.97); }
+
+.mem-countdown-overlay {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.75);
+  align-items: center; justify-content: center;
+}
+.mem-countdown-num { font-family: 'Fredoka One', cursive; font-size: 120px; color: #fff; animation: popIn 0.4s ease; }
 </style>
 </head>
 <body>
 
 <!-- ════════════════════════════════
-     TITLE SCREEN
+     HUB SCREEN — 게임 선택
 ════════════════════════════════ -->
-<div id="title-screen" class="screen active">
+<div id="hub-screen" class="screen active">
+  <div class="hub-header">
+    <div class="logo-emoji">🎉</div>
+    <div class="hub-title">주형이 지훈이 게임!</div>
+    <div class="hub-sub">어떤 게임을 할까요?</div>
+  </div>
+  <div class="hub-cards">
+    <div class="hub-card quiz-card" onclick="showScreen('title-screen')">
+      <div class="hub-card-icon">🎯</div>
+      <div class="hub-card-title">퀴즈 버즈!</div>
+      <div class="hub-card-desc">먼저 버튼을 눌러야 답할 수 있어요!<br>최대 4명이 함께하는<br>신나는 버즈 퀴즈</div>
+      <div class="hub-card-badge">2~4명 · 282문제</div>
+    </div>
+    <div class="hub-card memory-card" onclick="showScreen('memory-screen')">
+      <div class="hub-card-icon">🃏</div>
+      <div class="hub-card-title">기억 카드 찾기</div>
+      <div class="hub-card-desc">카드를 기억하고<br>키워드에 맞는 카드를 찾아요!<br>빠를수록 높은 점수</div>
+      <div class="hub-card-badge">혼자 · 3단계 난이도</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     TITLE SCREEN (퀴즈 설정)
+════════════════════════════════ -->
+<div id="title-screen" class="screen">
   <div class="title-left">
-    <span class="logo-emoji">🎉</span>
-    <div class="game-title">주형이 지훈이 퀴즈!</div>
+    <span class="logo-emoji">🎯</span>
+    <div class="game-title">퀴즈 버즈!</div>
     <div class="game-sub">먼저 버튼을 눌러야 답할 수 있어요!<br>주형이 &amp; 지훈이를 위한 퀴즈 게임</div>
+    <button style="margin-top:20px;background:rgba(255,255,255,0.08);border:1.5px solid var(--border);color:var(--muted);padding:8px 20px;border-radius:20px;font-family:inherit;font-size:13px;cursor:pointer;" onclick="showScreen('hub-screen')">← 게임 선택으로</button>
   </div>
   <div class="title-right">
     <div class="setup-section-title">👥 참가자 이름</div>
@@ -503,7 +691,91 @@ body::before {
   </div>
   <div class="result-right">
     <div class="result-list" id="result-list"></div>
-    <button class="btn-restart" onclick="restart()">🔄 다시 하기</button>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn-restart" onclick="restart()">🔄 다시 하기</button>
+      <button class="btn-restart" style="background:linear-gradient(135deg,var(--c4),#6C5CE7)" onclick="showScreen('hub-screen')">🏠 게임 선택</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     MEMORY CARD GAME SCREEN
+════════════════════════════════ -->
+<div id="memory-screen" class="screen">
+  <div class="mem-topbar">
+    <button class="btn-home" onclick="showScreen('hub-screen'); memStopAll()">⌂</button>
+    <div class="mem-topbar-title">🃏 기억 카드 찾기</div>
+    <div style="width:32px"></div>
+  </div>
+  <div class="mem-body">
+    <div class="mem-game-wrap">
+      <div class="mem-header">
+        <h1>🃏 기억 카드 찾기</h1>
+        <p>카드를 기억하고 키워드에 맞는 카드를 찾아요!</p>
+      </div>
+      <div class="mem-lv-row">
+        <button class="mem-lv-btn active" data-lv="easy">쉬움 (4장)</button>
+        <button class="mem-lv-btn" data-lv="normal">보통 (6장)</button>
+        <button class="mem-lv-btn" data-lv="hard">어려움 (9장)</button>
+      </div>
+      <div class="mem-hud">
+        <div class="mem-stat" id="m-score-stat">
+          <div class="mem-stat-label">점수</div>
+          <div class="mem-stat-val" id="m-score">0</div>
+        </div>
+        <div class="mem-stat">
+          <div class="mem-stat-label">남은 카드</div>
+          <div class="mem-stat-val" id="m-remaining">-</div>
+        </div>
+        <div class="mem-stat">
+          <div class="mem-stat-label">라운드</div>
+          <div class="mem-stat-val" id="m-round">-</div>
+        </div>
+        <div class="mem-stat" id="m-miss-stat">
+          <div class="mem-stat-label">실수</div>
+          <div class="mem-stat-val" id="m-misses">0</div>
+        </div>
+      </div>
+      <div class="mem-timer-wrap"><div class="mem-timer-bar" id="m-timer-bar" style="width:0%"></div></div>
+      <div class="mem-phase-msg" id="m-phase-msg"></div>
+      <div class="mem-kw-box" id="m-kw-box">
+        <div class="mem-kw-label">이 카드를 찾아보세요!</div>
+        <div class="mem-kw-word" id="m-keyword">?</div>
+      </div>
+      <div class="mem-card-grid" id="m-card-grid"></div>
+      <div class="mem-big-panel" id="m-intro-panel">
+        <div class="mem-big-panel-icon">🎴</div>
+        <h2>기억 카드 찾기</h2>
+        <p>카드가 펼쳐지면 열심히 기억하세요!<br>카드가 뒤집힌 후 키워드에 맞는 카드를 찾으면 점수를 받아요.<br>빠르게 찾을수록 더 많은 점수!</p>
+        <button class="mem-btn-primary" id="m-btn-start">게임 시작 🚀</button>
+      </div>
+      <div class="mem-big-panel" id="m-result-panel" style="display:none">
+        <div class="mem-big-panel-icon" id="m-result-icon">🎉</div>
+        <h2 id="m-result-title">완벽해요!</h2>
+        <span class="mem-score-big" id="m-result-score">0점</span>
+        <p id="m-result-desc"></p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="mem-btn-primary" id="m-btn-restart">🔄 다시 하기</button>
+          <button class="mem-btn-primary" style="background:rgba(255,255,255,0.1);color:var(--text);box-shadow:none;border:1.5px solid var(--border)" onclick="showScreen('hub-screen'); memStopAll()">🏠 게임 선택</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mem-countdown-overlay" id="m-countdown"><div class="mem-countdown-num" id="m-countdown-num">3</div></div>
+
+<!-- ════════════════════════════════
+     HOME CONFIRM MODAL
+════════════════════════════════ -->
+<div id="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-emoji">🏠</div>
+    <div class="modal-title">메뉴로 돌아갈까요?</div>
+    <div class="modal-sub">현재 게임 진행 상황이 사라져요</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">계속 게임하기</button>
+      <button class="modal-btn modal-confirm" onclick="goHome()">메뉴로 이동</button>
+    </div>
   </div>
 </div>
 
@@ -1113,8 +1385,6 @@ function makeConfetti(){
 function restart(){
   showScreen('title-screen');
 }
-
-function confirmHome(){
   document.getElementById('modal-overlay').style.display='flex';
 }
 function closeModal(){
@@ -1122,13 +1392,154 @@ function closeModal(){
 }
 function goHome(){
   closeModal();
-  showScreen('title-screen');
+  showScreen('hub-screen');
 }
+
+// ══════════════════════════════════════════════════════════
+//  MEMORY CARD GAME
+// ══════════════════════════════════════════════════════════
+const MEM_CARD_SETS = [
+  {emoji:'🍎',label:'사과',kw:'사과'},{emoji:'🍌',label:'바나나',kw:'바나나'},
+  {emoji:'🍇',label:'포도',kw:'포도'},{emoji:'🍓',label:'딸기',kw:'딸기'},
+  {emoji:'🍊',label:'귤',kw:'귤'},{emoji:'🍋',label:'레몬',kw:'레몬'},
+  {emoji:'🍉',label:'수박',kw:'수박'},{emoji:'🐶',label:'강아지',kw:'강아지'},
+  {emoji:'🐱',label:'고양이',kw:'고양이'},{emoji:'🐻',label:'곰',kw:'곰'},
+  {emoji:'🐸',label:'개구리',kw:'개구리'},{emoji:'🦊',label:'여우',kw:'여우'},
+  {emoji:'🐯',label:'호랑이',kw:'호랑이'},{emoji:'✏️',label:'연필',kw:'연필'},
+  {emoji:'📚',label:'책',kw:'책'},{emoji:'🎨',label:'물감',kw:'물감'},
+  {emoji:'⚽',label:'축구공',kw:'축구공'},{emoji:'🎸',label:'기타',kw:'기타'},
+  {emoji:'🚀',label:'로켓',kw:'로켓'},{emoji:'🦋',label:'나비',kw:'나비'},
+];
+const MEM_LEVELS = {
+  easy:   {count:4,  showTime:5000,  cols:2, findTime:18000},
+  normal: {count:6,  showTime:7000,  cols:3, findTime:15000},
+  hard:   {count:9,  showTime:10000, cols:3, findTime:12000},
+};
+let mState = { phase:'idle', level:'easy', cards:[], keywords:[], kwIdx:0, score:0, misses:0, revealed:[], timerInterval:null };
+
+function memStopAll(){ clearInterval(mState.timerInterval); mState.phase='idle'; }
+function m$(id){ return document.getElementById(id); }
+function mShuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
+
+function mUpdateHUD(){
+  m$('m-score').textContent = mState.score;
+  m$('m-misses').textContent = mState.misses;
+  m$('m-remaining').textContent = Math.max(0, mState.keywords.length - mState.kwIdx);
+  m$('m-round').textContent = mState.kwIdx > 0 ? mState.kwIdx : '-';
+}
+function mSetMsg(msg){ m$('m-phase-msg').textContent = msg; }
+
+function mStartTimer(duration, onEnd){
+  clearInterval(mState.timerInterval);
+  const bar = m$('m-timer-bar'), start = Date.now();
+  bar.style.width='100%'; bar.style.background='#4ECDC4';
+  mState.timerInterval = setInterval(()=>{
+    const pct = Math.max(0, 1-(Date.now()-start)/duration);
+    bar.style.width=(pct*100)+'%';
+    if(pct<0.25) bar.style.background='#FF6B6B';
+    else if(pct<0.55) bar.style.background='#FFD93D';
+    else bar.style.background='#4ECDC4';
+    if(Date.now()-start >= duration){ clearInterval(mState.timerInterval); bar.style.width='0%'; onEnd(); }
+  }, 50);
+}
+
+function mRenderCards(faceUp){
+  const lv = MEM_LEVELS[mState.level];
+  const grid = m$('m-card-grid');
+  grid.style.gridTemplateColumns=`repeat(${lv.cols},1fr)`;
+  grid.innerHTML='';
+  mState.cards.forEach((card,i)=>{
+    const div=document.createElement('div');
+    div.className='mem-card';
+    if(mState.revealed.includes(i)){
+      div.classList.add('mem-correct','mem-revealed');
+      div.innerHTML=`<div class="mem-card-inner"><div class="mem-card-emoji">${card.emoji}</div><div class="mem-card-label">${card.label}</div></div><div class="mem-correct-badge">✓</div>`;
+    } else if(faceUp){
+      div.innerHTML=`<div class="mem-card-inner"><div class="mem-card-emoji">${card.emoji}</div><div class="mem-card-label">${card.label}</div></div>`;
+    } else {
+      div.classList.add('mem-back');
+      div.innerHTML=`<div class="mem-back-pat"></div><div class="mem-card-inner"><div class="mem-back-sym">?</div></div>`;
+      if(mState.phase==='finding') div.addEventListener('click',()=>mOnCardClick(i,div));
+    }
+    grid.appendChild(div);
+  });
+}
+
+function mShowCountdown(cb){
+  const overlay=m$('m-countdown'), inner=m$('m-countdown-num');
+  overlay.style.display='flex'; let n=3; inner.textContent=n;
+  const iv=setInterval(()=>{ n--; if(n<=0){ clearInterval(iv); overlay.style.display='none'; cb(); } else { inner.textContent=n; inner.style.animation='none'; inner.offsetHeight; inner.style.animation='popIn 0.4s ease'; }}, 1000);
+}
+
+function mStartGame(){
+  const lv=MEM_LEVELS[mState.level];
+  mState.cards=mShuffle(MEM_CARD_SETS).slice(0,lv.count);
+  mState.keywords=mShuffle([...mState.cards]);
+  mState.kwIdx=0; mState.score=0; mState.misses=0; mState.revealed=[]; mState.phase='showing';
+  m$('m-intro-panel').style.display='none'; m$('m-result-panel').style.display='none';
+  m$('m-kw-box').style.display='none'; m$('m-timer-bar').style.width='0%';
+  mSetMsg('카드를 잘 기억하세요! 👀'); mUpdateHUD(); mRenderCards(true);
+  mStartTimer(lv.showTime,()=>{
+    mSetMsg('이제 뒤집혀요! 준비하세요...');
+    mShowCountdown(()=>{ mState.phase='finding'; mRenderCards(false); mShowNextKw(); });
+  });
+}
+
+function mShowNextKw(){
+  if(mState.kwIdx>=mState.keywords.length){ mEndGame(); return; }
+  const lv=MEM_LEVELS[mState.level], kw=mState.keywords[mState.kwIdx];
+  const kwBox=m$('m-kw-box');
+  kwBox.style.display='block'; kwBox.style.animation='none'; kwBox.offsetHeight; kwBox.style.animation='popIn 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+  m$('m-keyword').textContent=kw.kw; mUpdateHUD(); mSetMsg('카드를 찾아보세요! 🔍');
+  mStartTimer(lv.findTime,()=>{ mState.misses++; mUpdateHUD(); mSetMsg('시간 초과! ⏱️'); mState.kwIdx++; setTimeout(()=>{ mRenderCards(false); mShowNextKw(); },800); });
+}
+
+function mOnCardClick(idx,el){
+  if(mState.phase!=='finding'||mState.revealed.includes(idx)||el.classList.contains('mem-wrong')) return;
+  const target=mState.keywords[mState.kwIdx], clicked=mState.cards[idx];
+  el.classList.remove('mem-back');
+  el.innerHTML=`<div class="mem-card-inner"><div class="mem-card-emoji">${clicked.emoji}</div><div class="mem-card-label">${clicked.label}</div></div>`;
+  if(clicked.kw===target.kw){
+    el.classList.add('mem-correct'); el.innerHTML+=`<div class="mem-correct-badge">✓</div>`;
+    mState.score+=50; mState.revealed.push(idx);
+    clearInterval(mState.timerInterval); m$('m-timer-bar').style.width='0%';
+    mUpdateHUD(); mSetMsg('정답이에요! 🎉'); mState.kwIdx++;
+    setTimeout(()=>{ mRenderCards(false); mShowNextKw(); },700);
+  } else {
+    el.classList.add('mem-wrong'); mState.misses++; mUpdateHUD();
+    setTimeout(()=>{ el.classList.remove('mem-wrong'); el.classList.add('mem-back'); el.innerHTML=`<div class="mem-back-pat"></div><div class="mem-card-inner"><div class="mem-back-sym">?</div></div>`; el.addEventListener('click',()=>mOnCardClick(idx,el)); },500);
+  }
+}
+
+function mEndGame(){
+  clearInterval(mState.timerInterval); mState.phase='result';
+  m$('m-card-grid').innerHTML=''; m$('m-kw-box').style.display='none';
+  m$('m-timer-bar').style.width='0%'; mSetMsg('');
+  const total=mState.keywords.length, correct=mState.revealed.length;
+  let icon='🎉',title='완벽해요!';
+  if(correct===total){icon='🏆';title='완벽해요!';}
+  else if(correct>=total*0.7){icon='😊';title='잘했어요!';}
+  else if(correct>=total*0.4){icon='🙂';title='조금 더 연습해요!';}
+  else{icon='😅';title='다시 도전해봐요!';}
+  m$('m-result-icon').textContent=icon; m$('m-result-title').textContent=title;
+  m$('m-result-score').textContent=mState.score+'점';
+  m$('m-result-desc').textContent=`${total}장 중 ${correct}장 맞혔어요! 실수 ${mState.misses}번`;
+  m$('m-result-panel').style.display='block';
+}
+
+// level buttons
+document.querySelectorAll('.mem-lv-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mem-lv-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); mState.level=btn.dataset.lv;
+  });
+});
+document.getElementById('m-btn-start').addEventListener('click', mStartGame);
+document.getElementById('m-btn-restart').addEventListener('click',()=>{ m$('m-result-panel').style.display='none'; mStartGame(); });
 </script>
 <!-- ════════════════════════════════
      HOME CONFIRM MODAL
 ════════════════════════════════ -->
-<div id="modal-overlay" style="display:none">
   <div class="modal-box">
     <div class="modal-emoji">🏠</div>
     <div class="modal-title">메뉴로 돌아갈까요?</div>
