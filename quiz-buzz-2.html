@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎉 퀴즈 버즈! - 초등 저학년용</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1: #FF6B6B; --c1l: #FFE8E8; --c1d: #C0392B;
+  --c2: #4ECDC4; --c2l: #E0F7F6; --c2d: #1A9E95;
+  --c3: #FFD93D; --c3l: #FFF8DC; --c3d: #C49A00;
+  --c4: #A29BFE; --c4l: #EEF0FF; --c4d: #6C5CE7;
+  --bg: #1a1a2e;
+  --bg2: #16213e;
+  --card: #0f3460;
+  --card2: #1a1a4e;
+  --text: #EAEAEA;
+  --muted: #9BA8C0;
+  --border: rgba(255,255,255,0.12);
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ── STAR BG ── */
+body::before {
+  content:'';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 80px 80px, 40px 40px;
+  background-position: 0 0, 20px 20px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ══════════════════════════════════
+   SCREENS  — each fills full viewport
+══════════════════════════════════ */
+.screen { display: none; position: fixed; inset: 0; z-index: 1; }
+.screen.active { display: flex; }
+
+/* ══════════════════════════════════
+   TITLE SCREEN  —  two-column layout
+══════════════════════════════════ */
+#title-screen {
+  align-items: stretch;
+}
+.title-left {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3vw;
+  background: linear-gradient(160deg, #0f3460 0%, #1a1a2e 100%);
+  border-right: 1px solid var(--border);
+}
+.logo-emoji { font-size: 5vw; display: block; margin-bottom: 0.4em; animation: bounce 1.8s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.game-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--c1), var(--c4));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.2em;
+}
+.game-sub { font-size: clamp(0.85rem, 1.3vw, 1.1rem); color: var(--muted); margin-bottom: 0; text-align: center; }
+
+.title-right {
+  width: 42%;
+  display: flex; flex-direction: column;
+  align-items: stretch; justify-content: center;
+  padding: 2vw 2.5vw;
+  overflow-y: auto;
+}
+.setup-section-title {
+  font-size: 0.75rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 0.8rem;
+}
+.player-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 1.2rem;
+}
+.player-row { display: flex; align-items: center; gap: 8px; }
+.p-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.player-row input {
+  flex: 1; padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit; font-size: 0.95rem;
+  color: var(--text); background: rgba(255,255,255,0.06);
+  outline: none; transition: border-color 0.2s;
+}
+.player-row input:focus { border-color: var(--c4); }
+.player-row input::placeholder { color: var(--muted); }
+
+.setup-divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+.setup-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+.setup-opt { display: flex; flex-direction: column; gap: 4px; }
+.setup-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.setup-select {
+  padding: 9px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit; font-size: 0.88rem;
+  background: rgba(255,255,255,0.06);
+  color: var(--text); outline: none; cursor: pointer;
+}
+.btn-start {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--c1), #FF8E53);
+  color: #fff; border: none; border-radius: 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  letter-spacing: 1px; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(255,107,107,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-start:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(255,107,107,0.5); }
+
+/* ══════════════════════════════════
+   GAME SCREEN  —  three-column
+   LEFT: scores | CENTER: question | RIGHT: buzz
+══════════════════════════════════ */
+#game-screen {
+  flex-direction: column;
+}
+
+/* Top progress bar */
+.g-topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; z-index: 5;
+}
+.q-counter { font-size: 0.9rem; font-weight: 700; color: var(--muted); white-space: nowrap; min-width: 64px; }
+.prog-wrap { flex: 1; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--c1), var(--c4)); transition: width 0.4s ease; }
+.cat-pill {
+  font-size: 0.72rem; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--c4l); color: var(--c4d);
+  white-space: nowrap;
+}
+
+/* Main 3-col area */
+.g-body {
+  flex: 1; display: flex; overflow: hidden;
+}
+
+/* LEFT — scores */
+.g-left {
+  width: 20%;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 16px 14px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.sc-card {
+  background: var(--card);
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  padding: 14px 12px;
+  text-align: center;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.sc-card.buzzer { border-width: 3px; transform: scale(1.04); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.sc-name { font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-pts { font-size: 2.2rem; font-weight: 900; line-height: 1; }
+.sc-pts-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.penalty-tag { display:inline-block; font-size:0.65rem; padding:1px 5px; background:var(--c1l); color:var(--c1d); border-radius:6px; margin-left:3px; vertical-align:middle; }
+
+/* CENTER — question */
+.g-center {
+  flex: 1;
+  display: flex; flex-direction: column;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+.q-image-box {
+  display: flex; align-items: center; justify-content: center;
+  height: 18vh; min-height: 100px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+  border: 2px dashed var(--border);
+  margin-bottom: 14px;
+  font-size: clamp(3rem, 8vh, 7rem);
+  line-height: 1;
+}
+.q-text {
+  font-size: clamp(1.1rem, 2.4vw, 2rem);
+  font-weight: 700; line-height: 1.5;
+  color: var(--text); margin-bottom: 16px;
+}
+.mc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mc-btn {
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-family: inherit;
+  font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+  font-weight: 500; cursor: pointer;
+  text-align: left; transition: all 0.15s; line-height: 1.4;
+}
+.mc-btn:hover { border-color: var(--c4); background: rgba(162,155,254,0.15); }
+.mc-btn.correct { background: rgba(78,205,196,0.2); border-color: var(--c2); border-width: 3px; color: #a8f0eb; }
+.mc-btn.wrong { opacity: 0.25; }
+.mc-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.1); border-radius: 50%;
+  font-size: 0.78rem; margin-right: 8px; flex-shrink: 0;
+}
+.ox-wrap { display: flex; gap: 14px; }
+.ox-btn {
+  flex: 1; padding: 1rem;
+  border-radius: 14px; border: 3px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  text-align: center; cursor: pointer;
+  transition: all 0.15s; user-select: none;
+}
+.ox-btn:hover { transform: scale(1.04); }
+.ox-btn.o-btn { border-color: var(--c2); }
+.ox-btn.x-btn { border-color: var(--c1); }
+.ox-btn.correct { background: rgba(78,205,196,0.2); border-width: 4px; }
+.ox-btn.wrong { opacity: 0.25; }
+
+.reveal-bar {
+  border-radius: 12px; padding: 14px 18px;
+  text-align: center; font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  font-weight: 700; margin-top: 14px;
+}
+.reveal-bar.correct { background: rgba(78,205,196,0.2); color: #a8f0eb; border: 1px solid var(--c2); }
+.reveal-bar.wrong { background: rgba(255,107,107,0.18); color: #ffb3b3; border: 1px solid var(--c1); }
+.reveal-bar.info { background: rgba(255,217,61,0.15); color: #ffe87a; border: 1px solid var(--c3); }
+.action-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+.btn-action {
+  padding: 11px 26px; border-radius: 50px; border: none;
+  font-family: inherit; font-size: 0.92rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-action:hover { transform: translateY(-2px); }
+.btn-next { background: var(--c4); color: #fff; box-shadow: 0 4px 16px rgba(162,155,254,0.4); }
+.btn-reveal { background: rgba(255,255,255,0.08); color: var(--text); border: 1.5px solid var(--border); }
+
+/* RIGHT — buzz */
+.g-right {
+  width: 24%;
+  display: flex; flex-direction: column;
+  padding: 16px 14px;
+  border-left: 1px solid var(--border);
+  gap: 10px;
+}
+.buzz-header {
+  text-align: center;
+  font-size: 0.75rem; font-weight: 700;
+  color: var(--muted); letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 2px;
+}
+.buzz-scoring {
+  text-align: center; font-size: 0.78rem; color: var(--muted);
+  margin-bottom: 6px;
+}
+.buzz-btns { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.buzz-btn {
+  flex: 1; min-height: 56px;
+  border-radius: 14px; border: 2.5px solid transparent;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  letter-spacing: 0.5px; cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.buzz-btn:hover { transform: scale(1.04); filter: brightness(1.1); }
+.buzz-btn:active { transform: scale(0.97); }
+.buzz-btn:disabled { cursor: not-allowed; transform: none; filter: none; }
+.buzz-btn.penalized { opacity: 0.2 !important; border-style: dashed !important; cursor: not-allowed !important; transform: none !important; }
+.buzz-winner-msg {
+  text-align: center; font-weight: 700;
+  font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+  padding: 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+}
+.buzz-penalty-msg { text-align: center; font-size: 0.82rem; color: #ffb3b3; font-weight: 700; }
+
+.score-flash { animation: scoreFlash 0.55s ease; }
+@keyframes scoreFlash { 0%{transform:scale(1)} 35%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+/* ══════════════════════════════════
+   RESULT SCREEN
+══════════════════════════════════ */
+#result-screen {
+  align-items: stretch;
+}
+.result-left {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 4vw;
+  background: linear-gradient(160deg, #0f3460 0%, #1a1a2e 100%);
+  border-right: 1px solid var(--border);
+}
+.result-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  margin-bottom: 0.2em; text-align: center;
+}
+.result-sub { color: var(--muted); font-size: clamp(0.9rem, 1.4vw, 1.1rem); text-align: center; }
+
+.result-right {
+  width: 50%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3vw;
+}
+.result-list { width: 100%; max-width: 460px; margin-bottom: 2rem; }
+.result-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px; border: 1px solid var(--border);
+}
+.result-row.rank1 { background: rgba(255,215,0,0.12); border-color: rgba(255,215,0,0.3); }
+.result-medal { font-size: 1.8rem; width: 40px; text-align: center; }
+.result-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+.result-name { flex: 1; font-weight: 700; font-size: clamp(1rem, 1.8vw, 1.3rem); }
+.result-score { font-size: clamp(1.2rem, 2.2vw, 1.8rem); font-weight: 900; }
+
+.confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+.confetti-piece { position: absolute; border-radius: 3px; animation: fall linear forwards; }
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+.btn-restart {
+  padding: 14px 44px; border-radius: 50px; border: none;
+  background: linear-gradient(135deg, var(--c1), #FF8E53); color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1rem, 1.8vw, 1.4rem);
+  cursor: pointer; box-shadow: 0 6px 24px rgba(255,107,107,0.3);
+  transition: transform 0.15s;
+}
+.btn-restart:hover { transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     TITLE SCREEN
+════════════════════════════════ -->
+<div id="title-screen" class="screen active">
+  <div class="title-left">
+    <span class="logo-emoji">🎉</span>
+    <div class="game-title">퀴즈 버즈!</div>
+    <div class="game-sub">먼저 버튼을 눌러야 답할 수 있어요!<br>초등 저학년용 가족 퀴즈 게임</div>
+  </div>
+  <div class="title-right">
+    <div class="setup-section-title">👥 참가자 이름</div>
+    <div class="player-grid">
+      <div class="player-row">
+        <div class="p-dot" style="background:var(--c1)"></div>
+        <input id="p1" placeholder="참가자 1" value="빨간팀">
+      </div>
+      <div class="player-row">
+        <div class="p-dot" style="background:var(--c2)"></div>
+        <input id="p2" placeholder="참가자 2" value="파란팀">
+      </div>
+      <div class="player-row">
+        <div class="p-dot" style="background:var(--c3d)"></div>
+        <input id="p3" placeholder="참가자 3 (선택)">
+      </div>
+      <div class="player-row">
+        <div class="p-dot" style="background:var(--c4)"></div>
+        <input id="p4" placeholder="참가자 4 (선택)">
+      </div>
+    </div>
+
+    <hr class="setup-divider">
+
+    <div class="setup-options">
+      <div class="setup-opt">
+        <span class="setup-label">📝 문제 수</span>
+        <select class="setup-select" id="q-count">
+          <option value="10">10문제</option>
+          <option value="15" selected>15문제</option>
+          <option value="20">20문제</option>
+          <option value="30">30문제</option>
+        </select>
+      </div>
+      <div class="setup-opt">
+        <span class="setup-label">🎯 카테고리</span>
+        <select class="setup-select" id="q-cat">
+          <option value="all">전체 섞기</option>
+          <option value="ox">OX 퀴즈만</option>
+          <option value="animal">동물 퀴즈만</option>
+          <option value="science">과학 퀴즈만</option>
+          <option value="math">숫자/수학만</option>
+          <option value="culture">상식/문화만</option>
+          <option value="image">그림 맞추기만</option>
+          <option value="korean">국어/언어만</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-start" onclick="startGame()">게임 시작! 🚀</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     GAME SCREEN
+════════════════════════════════ -->
+<div id="game-screen" class="screen">
+  <!-- Top progress bar -->
+  <div class="g-topbar">
+    <span class="q-counter" id="q-counter">1 / 15</span>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="cat-pill" id="cat-pill">상식</span>
+  </div>
+
+  <!-- 3-column body -->
+  <div class="g-body">
+
+    <!-- LEFT: scoreboard -->
+    <div class="g-left" id="scoreboard"></div>
+
+    <!-- CENTER: question -->
+    <div class="g-center">
+      <div id="q-image-area"></div>
+      <div class="q-text" id="q-text"></div>
+      <div id="q-choices"></div>
+      <div class="reveal-bar" id="reveal-bar" style="display:none"></div>
+      <div class="action-row">
+        <button class="btn-action btn-reveal" id="btn-reveal" onclick="revealAnswer()" style="display:none">정답 보기 👀</button>
+        <button class="btn-action btn-next" id="btn-next" onclick="nextQ()" style="display:none">다음 문제 →</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: buzz buttons -->
+    <div class="g-right" id="buzz-card">
+      <div class="buzz-header" id="buzz-label">⚡ 아는 사람?</div>
+      <div class="buzz-scoring">✅ 정답 <b style="color:#a8f0eb">+10점</b> &nbsp;|&nbsp; ❌ 오답 <b style="color:#ffb3b3">-5점</b></div>
+      <div class="buzz-btns" id="buzz-btns"></div>
+      <div class="buzz-winner-msg" id="buzz-winner-msg"></div>
+      <div class="buzz-penalty-msg" id="buzz-penalty-msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     RESULT SCREEN
+════════════════════════════════ -->
+<div id="result-screen" class="screen">
+  <div class="confetti-wrap" id="confetti-wrap"></div>
+  <div class="result-left">
+    <div class="result-title">🏆 최종 결과!</div>
+    <div class="result-sub">모두 수고했어요!<br>다음엔 더 잘할 수 있어요!</div>
+  </div>
+  <div class="result-right">
+    <div class="result-list" id="result-list"></div>
+    <button class="btn-restart" onclick="restart()">🔄 다시 하기</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  QUESTION BANK  (300+ questions)
+// ══════════════════════════════════════════════════════════
+const QBANK = [
+
+// ─── OX 퀴즈 (동물) ───────────────────────────────
+{type:'ox',cat:'ox',sub:'동물OX',q:'고양이는 수영을 전혀 할 수 없다.',ans:'X',exp:'고양이도 수영을 할 수 있어요. 하지만 물을 싫어하는 경우가 많아요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'펭귄은 날 수 없는 새다.',ans:'O',exp:'펭귄은 날개가 있지만 날지 못해요. 대신 수영을 아주 잘해요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'돌고래는 물고기다.',ans:'X',exp:'돌고래는 물고기가 아니라 포유류예요. 새끼를 낳고 젖을 먹여요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'코끼리는 지구에서 가장 큰 동물이다.',ans:'X',exp:'지구에서 가장 큰 동물은 대왕고래예요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'사자는 고양이과 동물이다.',ans:'O',exp:'사자, 호랑이, 표범 모두 고양이과 동물이에요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'뱀은 귀가 없어 소리를 전혀 듣지 못한다.',ans:'X',exp:'뱀은 귀가 없지만 땅의 진동으로 소리를 느낄 수 있어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'박쥐는 포유류다.',ans:'O',exp:'박쥐는 날지만 포유류예요. 새끼를 낳고 젖을 먹여요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'타조는 날 수 없는 새다.',ans:'O',exp:'타조는 날개가 있지만 날지 못해요. 하지만 매우 빠르게 달릴 수 있어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'개구리는 알에서 태어난다.',ans:'O',exp:'개구리는 알 → 올챙이 → 개구리 순서로 자라요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'상어는 뼈가 있는 물고기다.',ans:'X',exp:'상어는 뼈 대신 연골로 이루어진 연골어류예요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'고릴라는 채식만 한다.',ans:'O',exp:'고릴라는 주로 과일, 잎, 씨앗 등 식물만 먹어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'문어는 다리가 8개다.',ans:'O',exp:'문어는 8개의 다리(팔)를 가지고 있어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'악어는 알을 낳는다.',ans:'O',exp:'악어는 알을 낳고 어미가 알을 지켜요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'나비는 곤충이 아니다.',ans:'X',exp:'나비는 당연히 곤충이에요. 다리가 6개 있어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'거미는 곤충이다.',ans:'X',exp:'거미는 다리가 8개라 곤충이 아닌 거미류예요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'기린의 혀는 파란색이다.',ans:'X',exp:'기린의 혀는 짙은 보라색~검정색이에요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'낙타는 혹에 물을 저장한다.',ans:'X',exp:'낙타의 혹에는 물이 아닌 지방이 저장되어 있어요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'북극곰은 흰색 털을 가지고 있다.',ans:'X',exp:'북극곰의 털은 사실 투명해요! 피부는 검정색이에요.'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'개는 땀샘이 발바닥에 있다.',ans:'O',exp:'개는 주로 혀로 열을 식히고, 발바닥으로 땀을 흘려요!'},
+{type:'ox',cat:'ox',sub:'동물OX',q:'금붕어는 기억력이 3초밖에 안 된다.',ans:'X',exp:'사실이 아니에요! 금붕어는 몇 달간 기억할 수 있어요!'},
+
+// ─── OX 퀴즈 (과학/자연) ─────────────────────────
+{type:'ox',cat:'ox',sub:'과학OX',q:'식물은 햇빛을 이용해 스스로 음식을 만든다.',ans:'O',exp:'광합성이에요! 햇빛 + 물 + 이산화탄소로 영양분을 만들어요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'지구는 태양 주위를 돈다.',ans:'O',exp:'지구는 1년에 한 바퀴 태양 주위를 공전해요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'달에는 물이 존재한다.',ans:'O',exp:'달 극지방에는 얼음 상태의 물이 있는 것으로 밝혀졌어요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'무지개는 비가 올 때만 볼 수 있다.',ans:'X',exp:'분무기로 물을 뿌릴 때도 무지개를 만들 수 있어요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'지구에서 가장 깊은 바다는 에베레스트산보다 깊다.',ans:'O',exp:'마리아나 해구는 약 11km로 에베레스트산(8.8km)보다 깊어요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'소리는 우주 공간에서도 전달된다.',ans:'X',exp:'소리는 공기가 없는 우주에서 전달되지 않아요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'산소는 눈에 보이지 않는 기체다.',ans:'O',exp:'산소는 색도 냄새도 없는 무색 무취의 기체예요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'번개가 치고 나서 천둥소리가 들린다.',ans:'O',exp:'빛이 소리보다 훨씬 빠르기 때문이에요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'지구는 완전한 구 모양이다.',ans:'X',exp:'지구는 완전한 구가 아니라 양극이 약간 납작한 모양이에요!'},
+{type:'ox',cat:'ox',sub:'과학OX',q:'얼음을 가열하면 물이 된다.',ans:'O',exp:'얼음(고체) → 물(액체) → 수증기(기체)로 변해요!'},
+
+// ─── OX 퀴즈 (상식) ──────────────────────────────
+{type:'ox',cat:'ox',sub:'상식OX',q:'하루는 24시간이다.',ans:'O',exp:'하루는 정확히 24시간이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'일 년은 365일이다.',ans:'O',exp:'보통 365일이고, 4년에 한 번 윤년엔 366일이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'태극기의 원은 파란색과 빨간색으로 되어 있다.',ans:'O',exp:'태극 문양은 파란색(음)과 빨간색(양)으로 이루어져 있어요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'우리나라의 수도는 부산이다.',ans:'X',exp:'우리나라의 수도는 서울이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'한글은 세종대왕이 만들었다.',ans:'O',exp:'세종대왕이 1443년에 한글(훈민정음)을 만들었어요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'크리스마스는 12월 25일이다.',ans:'O',exp:'크리스마스는 매년 12월 25일이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'어린이날은 5월 5일이다.',ans:'O',exp:'우리나라 어린이날은 5월 5일이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'피자는 우리나라 전통 음식이다.',ans:'X',exp:'피자는 이탈리아에서 시작된 음식이에요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'세계에서 사람이 가장 많이 사는 나라는 중국이다.',ans:'X',exp:'2024년 기준으로 인도가 세계 1위 인구 국가예요!'},
+{type:'ox',cat:'ox',sub:'상식OX',q:'지구온난화로 북극의 얼음이 녹고 있다.',ans:'O',exp:'지구 기온이 높아지면서 북극과 남극의 빙하가 녹고 있어요!'},
+
+// ─── 동물 퀴즈 (4지선다) ──────────────────────────
+{type:'mc',cat:'animal',sub:'동물상식',q:'다음 중 가장 빠른 육지 동물은?',choices:['코끼리','치타','사자','말'],ans:1,exp:'치타는 시속 110km까지 달릴 수 있어요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'꿀을 만드는 곤충은?',choices:['나비','개미','꿀벌','잠자리'],ans:2,exp:'꿀벌이 꽃의 꿀을 모아 벌집에서 꿀을 만들어요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'가장 긴 목을 가진 동물은?',choices:['낙타','기린','타조','말'],ans:1,exp:'기린의 목 길이는 약 1.8m나 돼요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'겨울잠을 자는 동물이 아닌 것은?',choices:['곰','개구리','뱀','사자'],ans:3,exp:'사자는 겨울잠을 자지 않아요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'다리가 100개인 동물은?',choices:['지네','문어','거미','개미'],ans:0,exp:'지네는 다리가 매우 많아요. 종류에 따라 30~354개!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'새끼를 주머니에서 키우는 동물은?',choices:['코알라','판다','수달','오소리'],ans:0,exp:'코알라와 캥거루는 포대기(주머니)에서 새끼를 키워요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'바다에 사는 가장 큰 동물은?',choices:['상어','대왕오징어','대왕고래','바다거북'],ans:2,exp:'대왕고래는 지구 역사상 가장 큰 동물이에요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'카멜레온이 색을 바꾸는 이유가 아닌 것은?',choices:['기분 표현','체온 조절','위장','배고픔 표시'],ans:3,exp:'카멜레온은 기분, 체온, 위장을 위해 색을 바꿔요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'도마뱀이 위험할 때 하는 행동은?',choices:['도망간다','꼬리를 끊는다','죽은 척한다','소리를 낸다'],ans:1,exp:'도마뱀은 꼬리를 스스로 끊고 도망가요. 나중에 다시 자라요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'알을 낳지 않는 동물은?',choices:['악어','닭','소','독수리'],ans:2,exp:'소는 새끼를 직접 낳는 포유류예요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'고래가 숨을 쉬는 곳은?',choices:['아가미','피부','등의 분수공','코'],ans:2,exp:'고래는 등에 있는 분수공으로 숨을 쉬어요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'하늘을 날 수 없는 새는?',choices:['독수리','참새','키위','황새'],ans:2,exp:'키위새는 날개가 매우 작아 날지 못해요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'문어의 다리는 몇 개인가요?',choices:['6개','8개','10개','12개'],ans:1,exp:'문어는 8개의 다리(촉수)를 가지고 있어요!'},
+{type:'mc',cat:'animal',sub:'동물상식',q:'개는 어떻게 땀을 배출하나요?',choices:['겨드랑이','등','혀와 발바닥','피부 전체'],ans:2,exp:'개는 혀로 헐떡이며 열을 식히고, 발바닥으로 땀을 흘려요!'},
+
+// ─── 과학 퀴즈 ────────────────────────────────────
+{type:'mc',cat:'science',sub:'과학상식',q:'식물이 초록색인 이유는?',choices:['물을 많이 먹어서','엽록소 때문에','햇빛이 초록색이어서','흙이 초록색이어서'],ans:1,exp:'식물에 들어있는 엽록소가 초록색으로 보이게 해요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'무지개의 색깔은 몇 가지인가요?',choices:['5가지','6가지','7가지','8가지'],ans:2,exp:'무지개는 빨주노초파남보 7가지 색이에요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'태양계에서 가장 큰 행성은?',choices:['지구','화성','목성','토성'],ans:2,exp:'목성은 태양계에서 가장 큰 행성이에요. 지구 1300개가 들어가요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'물이 어는 온도는?',choices:['10도','5도','0도','-5도'],ans:2,exp:'물은 0도에서 얼음이 돼요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'우리 몸에서 피를 순환시키는 기관은?',choices:['폐','뇌','위','심장'],ans:3,exp:'심장이 펌프처럼 피를 온 몸에 순환시켜요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'공기 중에 가장 많은 기체는?',choices:['산소','이산화탄소','질소','수소'],ans:2,exp:'공기의 약 78%가 질소예요. 산소는 약 21%!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'지구의 위성 이름은?',choices:['화성','금성','달','태양'],ans:2,exp:'달은 지구의 유일한 자연 위성이에요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'식물이 광합성할 때 필요하지 않은 것은?',choices:['햇빛','물','이산화탄소','흙'],ans:3,exp:'광합성엔 햇빛, 물, 이산화탄소가 필요해요. 흙은 필수는 아니에요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'우리 몸에서 가장 큰 기관(장기)은?',choices:['심장','뇌','피부','간'],ans:2,exp:'피부가 우리 몸에서 가장 큰 기관이에요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'소금과 설탕 중 물에 더 잘 녹는 것은?',choices:['소금','설탕','둘 다 같다','둘 다 녹지 않는다'],ans:1,exp:'설탕이 소금보다 물에 더 잘 녹아요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'눈(雪)은 왜 하얗게 보일까요?',choices:['하얀 물질이어서','빛을 반사해서','차가워서','공기 때문에'],ans:1,exp:'눈의 결정이 빛을 여러 방향으로 반사해 하얗게 보여요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'지구에서 달까지 빛이 도달하는 시간은?',choices:['약 1초','약 1.3초','약 8분','약 1시간'],ans:1,exp:'빛이 달까지 약 1.3초 걸려요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'자석이 당기지 않는 물질은?',choices:['철','니켈','알루미늄','코발트'],ans:2,exp:'알루미늄은 자석에 붙지 않아요!'},
+{type:'mc',cat:'science',sub:'과학상식',q:'소리가 가장 빠르게 이동하는 곳은?',choices:['공기 중','물 속','딱딱한 고체','진공(우주)'],ans:2,exp:'소리는 딱딱한 고체(금속 등)에서 가장 빠르게 이동해요!'},
+
+// ─── 수학/숫자 퀴즈 ──────────────────────────────
+{type:'mc',cat:'math',sub:'숫자수학',q:'삼각형의 꼭짓점은 몇 개인가요?',choices:['2개','3개','4개','5개'],ans:1,exp:'삼각형은 꼭짓점이 3개, 변도 3개예요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'정사각형의 변은 몇 개인가요?',choices:['3개','4개','5개','6개'],ans:1,exp:'정사각형은 변이 4개, 꼭짓점도 4개예요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'1+1+1+1+1은 얼마인가요?',choices:['4','5','6','7'],ans:1,exp:'1을 5번 더하면 5예요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'10에서 3을 빼면?',choices:['6','7','8','5'],ans:1,exp:'10-3=7이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'2×3은 얼마인가요?',choices:['5','6','7','8'],ans:1,exp:'2×3=6이에요! 2를 3번 더하면 6!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'12를 2로 나누면?',choices:['4','5','6','7'],ans:2,exp:'12÷2=6이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'100보다 1 작은 수는?',choices:['99','98','101','100'],ans:0,exp:'100보다 1 작은 수는 99예요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'시계의 긴 바늘(분침)이 한 바퀴 도는 데 걸리는 시간은?',choices:['30분','1시간','2시간','15분'],ans:1,exp:'분침이 한 바퀴 돌면 1시간(60분)이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'하루에 몇 시간이 있나요?',choices:['12시간','20시간','24시간','30시간'],ans:2,exp:'하루는 24시간이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'오각형의 꼭짓점은 몇 개인가요?',choices:['4개','5개','6개','7개'],ans:1,exp:'오각형은 꼭짓점이 5개, 변도 5개예요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'50+50은?',choices:['90','95','100','110'],ans:2,exp:'50+50=100이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'3×4는 얼마인가요?',choices:['10','11','12','13'],ans:2,exp:'3×4=12예요! 3을 4번 더하면 12!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'1주일은 며칠인가요?',choices:['5일','6일','7일','8일'],ans:2,exp:'1주일은 7일이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'일 년에 몇 달이 있나요?',choices:['10달','11달','12달','13달'],ans:2,exp:'일 년은 12달이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'20의 절반은 얼마인가요?',choices:['5','8','10','12'],ans:2,exp:'20의 절반은 10이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'시계에 숫자가 몇 개 있나요?',choices:['10개','11개','12개','13개'],ans:2,exp:'시계에는 1부터 12까지 숫자가 12개 있어요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'5×5는 얼마인가요?',choices:['20','25','30','35'],ans:1,exp:'5×5=25예요! 5단 구구단이에요!'},
+{type:'mc',cat:'math',sub:'숫자수학',q:'1미터는 몇 센티미터인가요?',choices:['10cm','100cm','1000cm','10000cm'],ans:1,exp:'1m = 100cm예요!'},
+
+// ─── 상식/문화 퀴즈 ──────────────────────────────
+{type:'mc',cat:'culture',sub:'상식문화',q:'우리나라의 수도는 어디인가요?',choices:['부산','인천','서울','대구'],ans:2,exp:'대한민국의 수도는 서울이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'태극기에 없는 색깔은?',choices:['흰색','빨간색','파란색','노란색'],ans:3,exp:'태극기는 흰 바탕에 빨강, 파랑, 검정으로 이루어져 있어요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'우리나라 전통 악기가 아닌 것은?',choices:['가야금','장구','피아노','해금'],ans:2,exp:'피아노는 서양 악기예요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'한글을 만든 왕은?',choices:['태종','세종대왕','정조','영조'],ans:1,exp:'세종대왕이 1443년 훈민정음(한글)을 창제했어요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'우리나라 전통 명절 추석은 언제인가요?',choices:['1월 1일','음력 8월 15일','5월 5일','3월 1일'],ans:1,exp:'추석은 음력 8월 15일이에요. 한가위라고도 해요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'김치는 어떤 나라 음식인가요?',choices:['중국','일본','한국','미국'],ans:2,exp:'김치는 우리나라 대표 전통 발효 음식이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'올림픽은 몇 년마다 열리나요?',choices:['2년','3년','4년','5년'],ans:2,exp:'올림픽은 4년마다 개최돼요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'마라톤의 거리는 약 얼마인가요?',choices:['10km','21km','42km','100km'],ans:2,exp:'마라톤은 약 42.195km를 달리는 경기예요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'어린이날은 몇 월 며칠인가요?',choices:['3월 1일','4월 5일','5월 5일','6월 6일'],ans:2,exp:'어린이날은 5월 5일이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'크리스마스는 몇 월 며칠인가요?',choices:['11월 25일','12월 24일','12월 25일','1월 1일'],ans:2,exp:'크리스마스는 12월 25일이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'무지개 색깔 중 가장 바깥쪽 색은?',choices:['파란색','초록색','빨간색','보라색'],ans:2,exp:'무지개에서 가장 바깥쪽은 빨간색이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'우리나라 국가 원수는?',choices:['국무총리','대통령','국회의장','장관'],ans:1,exp:'우리나라는 대통령이 국가 원수예요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'세계에서 가장 높은 산은?',choices:['백두산','후지산','에베레스트','킬리만자로'],ans:2,exp:'에베레스트산은 높이가 약 8,849m로 세계 최고봉이에요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'피자의 원산지는 어느 나라인가요?',choices:['미국','프랑스','이탈리아','스페인'],ans:2,exp:'피자는 이탈리아 나폴리에서 유래했어요!'},
+{type:'mc',cat:'culture',sub:'상식문화',q:'신호등에서 초록불은 무슨 뜻인가요?',choices:['멈추세요','천천히','가도 됩니다','조심하세요'],ans:2,exp:'초록불은 안전하게 건너가도 된다는 신호예요!'},
+
+// ─── 그림 맞추기 ──────────────────────────────────
+{type:'image',cat:'image',sub:'그림맞추기',img:'🍎',q:'이 과일의 이름은?',choices:['사과','배','복숭아','포도'],ans:0,exp:'빨간 사과예요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🐘',q:'이 동물의 이름은?',choices:['하마','코끼리','코뿔소','기린'],ans:1,exp:'코끼리는 긴 코가 특징이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌈',q:'비 온 뒤 하늘에서 볼 수 있는 이것은?',choices:['오로라','유성','무지개','번개'],ans:2,exp:'무지개는 빨주노초파남보 7가지 색이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌍',q:'이것은 무엇인가요?',choices:['달','화성','지구','목성'],ans:2,exp:'우리가 사는 지구예요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🦋',q:'꽃 주위를 날아다니는 이 곤충은?',choices:['잠자리','꿀벌','나비','모기'],ans:2,exp:'나비는 애벌레에서 번데기를 거쳐 나비가 돼요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌙',q:'밤하늘에서 볼 수 있는 이것은?',choices:['태양','달','금성','목성'],ans:1,exp:'달은 지구의 위성이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🐟',q:'이 동물이 사는 곳은?',choices:['하늘','땅속','바다/강','사막'],ans:2,exp:'물고기는 물속에서 살아요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌸',q:'봄에 피는 이 꽃은 무엇인가요?',choices:['장미','무궁화','벚꽃','해바라기'],ans:2,exp:'벚꽃은 봄에 피는 예쁜 분홍색 꽃이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'⭐',q:'밤하늘에 반짝이는 이것은?',choices:['달','별','위성','행성'],ans:1,exp:'별은 스스로 빛을 내는 천체예요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌊',q:'서핑을 할 수 있는 이곳은?',choices:['강','호수','바다','수영장'],ans:2,exp:'파도가 있는 바다에서 서핑을 해요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🐢',q:'이 동물의 특징은?',choices:['빠르게 달린다','딱딱한 등껍질이 있다','날 수 있다','독이 있다'],ans:1,exp:'거북이는 단단한 등껍질로 몸을 보호해요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🍌',q:'이 과일의 이름은?',choices:['오이','바나나','옥수수','호박'],ans:1,exp:'바나나는 노란색의 달콤한 과일이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌵',q:'사막에서 자라는 이 식물은?',choices:['대나무','선인장','야자수','소나무'],ans:1,exp:'선인장은 물을 몸속에 저장해서 사막에서 살아요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🦊',q:'이 동물은 무엇인가요?',choices:['늑대','여우','개','고양이'],ans:1,exp:'여우는 꼬리가 길고 귀가 뾰족한 동물이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌺',q:'이 빨간 꽃은?',choices:['장미','튤립','무궁화','진달래'],ans:2,exp:'무궁화는 우리나라의 국화예요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🐧',q:'남극에 사는 이 새는?',choices:['독수리','펭귄','황새','두루미'],ans:1,exp:'펭귄은 날지 못하지만 수영을 아주 잘해요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌻',q:'해를 향해 피는 이 꽃은?',choices:['해바라기','민들레','백합','코스모스'],ans:0,exp:'해바라기는 태양을 향해 고개를 돌려요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🍓',q:'이 빨간 과일은?',choices:['사과','딸기','수박','토마토'],ans:1,exp:'딸기는 봄에 나는 달콤한 과일이에요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🦁',q:'동물의 왕이라 불리는 이 동물은?',choices:['호랑이','사자','표범','치타'],ans:1,exp:'사자는 동물의 왕이라 불려요!'},
+{type:'image',cat:'image',sub:'그림맞추기',img:'🌷',q:'봄의 시작을 알리는 이 꽃은?',choices:['장미','국화','튤립','진달래'],ans:2,exp:'튤립은 봄을 대표하는 꽃이에요!'},
+
+// ─── 국어/언어 퀴즈 ──────────────────────────────
+{type:'mc',cat:'korean',sub:'국어언어',q:'"하늘이 맑다"에서 "맑다"는 무엇을 나타내나요?',choices:['동작','상태/성질','장소','시간'],ans:1,exp:'형용사는 상태나 성질을 나타내요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 동물 이름이 아닌 것은?',choices:['기린','코끼리','민들레','악어'],ans:2,exp:'민들레는 꽃(식물)이에요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"크다"의 반대말은?',choices:['많다','높다','작다','길다'],ans:2,exp:'크다 ↔ 작다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"빠르다"의 반대말은?',choices:['느리다','무겁다','크다','좁다'],ans:0,exp:'빠르다 ↔ 느리다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 과일이 아닌 것은?',choices:['사과','배','당근','포도'],ans:2,exp:'당근은 채소예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"따뜻하다"의 반대말은?',choices:['시원하다','춥다','차갑다','뜨겁다'],ans:2,exp:'따뜻하다 ↔ 차갑다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 하늘에 있는 것이 아닌 것은?',choices:['별','달','구름','물고기'],ans:3,exp:'물고기는 물속에 살아요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"어둡다"의 반대말은?',choices:['까맣다','밝다','흐리다','무겁다'],ans:1,exp:'어둡다 ↔ 밝다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 색깔이 아닌 것은?',choices:['파란색','달콤한','빨간색','초록색'],ans:1,exp:'달콤한은 맛을 표현하는 말이에요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"높다"의 반대말은?',choices:['좁다','낮다','짧다','가볍다'],ans:1,exp:'높다 ↔ 낮다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 가족을 부르는 말이 아닌 것은?',choices:['아빠','선생님','언니','할머니'],ans:1,exp:'선생님은 가족이 아닌 학교 선생님을 부르는 말이에요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"길다"의 반대말은?',choices:['좁다','크다','짧다','가볍다'],ans:2,exp:'길다 ↔ 짧다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 계절이 아닌 것은?',choices:['봄','여름','달','겨울'],ans:2,exp:'달은 계절이 아니에요. 봄/여름/가을/겨울이 계절이에요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'"많다"의 반대말은?',choices:['작다','무겁다','적다','짧다'],ans:2,exp:'많다 ↔ 적다예요!'},
+{type:'mc',cat:'korean',sub:'국어언어',q:'다음 중 날씨를 나타내는 말이 아닌 것은?',choices:['맑다','흐리다','달리다','눈이 온다'],ans:2,exp:'달리다는 동작을 나타내는 말이에요!'},
+
+// ─── 추가 OX (재미있는 사실) ─────────────────────
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'바나나는 풀(草)의 열매다.',ans:'O',exp:'바나나 나무는 사실 나무가 아니라 큰 풀이에요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'사람은 눈을 뜨고 재채기를 할 수 없다.',ans:'O',exp:'재채기를 할 때 눈은 자동으로 감겨요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'꿀은 절대 썩지 않는다.',ans:'O',exp:'고대 이집트 무덤에서 발견된 꿀도 여전히 먹을 수 있었어요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'문어의 피는 파란색이다.',ans:'O',exp:'문어의 피에는 구리 성분이 있어 파란색이에요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'달팽이는 이빨이 없다.',ans:'X',exp:'달팽이는 수천 개의 작은 이빨을 가지고 있어요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'코코아와 초콜릿은 같은 열매에서 나온다.',ans:'O',exp:'둘 다 카카오 열매에서 나와요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'사람의 귀는 평생 자란다.',ans:'O',exp:'귀는 성장이 멈추지 않아 나이 들수록 커져요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'새우는 원래 투명하다.',ans:'O',exp:'살아있는 새우는 투명하고 익히면 분홍색이 돼요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'지구에서 가장 많은 동물은 개미다.',ans:'O',exp:'지구 개미의 총 무게가 모든 사람의 무게보다 많다고 해요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실',q:'해바라기는 항상 동쪽을 향한다.',ans:'X',exp:'어릴 때는 태양을 따라 움직이지만, 다 자라면 동쪽을 향해 고정돼요!'},
+
+// ─── 추가 상식 퀴즈 ──────────────────────────────
+{type:'mc',cat:'culture',sub:'추가상식',q:'세계에서 가장 긴 강은?',choices:['한강','나일강','아마존강','황하'],ans:1,exp:'나일강은 약 6,650km로 세계에서 가장 긴 강이에요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'사계절이 있는 이유는?',choices:['지구가 크기 때문','지구가 기울어져 태양 주위를 돌기 때문','달이 있어서','바람 때문에'],ans:1,exp:'지구가 23.5도 기울어져 공전하기 때문에 계절이 생겨요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'비행기를 처음 만든 사람은?',choices:['에디슨','라이트 형제','뉴턴','갈릴레오'],ans:1,exp:'라이트 형제(오빌과 윌버)가 1903년 최초로 비행에 성공했어요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'전구를 발명한 사람은?',choices:['뉴턴','다윈','에디슨','파스퇴르'],ans:2,exp:'토마스 에디슨이 1879년 실용적인 전구를 발명했어요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'우리나라 전통 놀이가 아닌 것은?',choices:['윷놀이','제기차기','바둑','야구'],ans:3,exp:'야구는 미국에서 유래한 운동이에요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'태권도는 어느 나라 무술인가요?',choices:['일본','중국','한국','미국'],ans:2,exp:'태권도는 우리나라 전통 무술이에요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'지구에서 가장 큰 사막은?',choices:['사하라사막','고비사막','아라비아사막','남극대륙'],ans:3,exp:'사실 가장 큰 사막은 남극대륙이에요! (눈과 얼음 사막)'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'독도는 어느 나라 섬인가요?',choices:['일본','중국','한국','러시아'],ans:2,exp:'독도는 우리나라 대한민국의 영토예요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'학교 교실에서 불을 켜고 끄는 것은?',choices:['콘센트','스위치','전선','전구'],ans:1,exp:'스위치를 누르면 전기가 흐르거나 끊겨요!'},
+{type:'mc',cat:'culture',sub:'추가상식',q:'봄, 여름, 가을, 겨울 중 가장 더운 계절은?',choices:['봄','여름','가을','겨울'],ans:1,exp:'여름이 가장 더워요!'},
+
+// ─── 추가 과학 퀴즈 ──────────────────────────────
+{type:'mc',cat:'science',sub:'추가과학',q:'뼈가 없는 동물은?',choices:['개','닭','문어','고등어'],ans:2,exp:'문어는 뼈가 없는 무척추동물이에요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'꽃의 어느 부분에서 열매가 생기나요?',choices:['꽃잎','꽃받침','씨방','수술'],ans:2,exp:'씨방이 자라서 열매가 돼요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'우리 몸에서 산소를 받아들이는 기관은?',choices:['심장','폐','위','간'],ans:1,exp:'폐에서 산소를 받아들이고 이산화탄소를 내보내요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'빛의 속도는 대략 얼마인가요?',choices:['시속 1만km','초속 30만km','초속 340m','초속 1km'],ans:1,exp:'빛은 1초에 약 30만km를 이동해요. 엄청 빠르죠!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'물 분자는 무엇으로 이루어졌나요?',choices:['수소와 산소','탄소와 산소','질소와 수소','탄소와 수소'],ans:0,exp:'물(H₂O)은 수소(H) 2개와 산소(O) 1개로 이루어져요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'비가 오는 이유는?',choices:['구름이 무거워서','바람이 불어서','기온이 내려가서','햇빛이 강해서'],ans:0,exp:'구름 속 물방울이 모여 무거워지면 비로 떨어져요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'나무는 어디서 자라는 데 필요한 탄소를 얻나요?',choices:['흙','물','공기 중 이산화탄소','비료'],ans:2,exp:'나무는 공기 중의 이산화탄소를 흡수해 탄소를 얻어요!'},
+{type:'mc',cat:'science',sub:'추가과학',q:'지구의 대기권에서 우리를 자외선으로부터 보호하는 층은?',choices:['성층권','오존층','대류권','열권'],ans:1,exp:'오존층이 태양의 자외선을 차단해줘요!'},
+
+// ─── 추가 동물 퀴즈 ──────────────────────────────
+{type:'mc',cat:'animal',sub:'추가동물',q:'다음 중 포유류가 아닌 것은?',choices:['고래','박쥐','독수리','두더지'],ans:2,exp:'독수리는 조류(새)예요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'뱀은 어떻게 냄새를 맡나요?',choices:['코','혀','피부','눈'],ans:1,exp:'뱀은 혀를 내밀어 냄새 입자를 감지해요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'북극에 사는 동물은?',choices:['펭귄','북극곰','캥거루','코알라'],ans:1,exp:'북극곰은 북극에, 펭귄은 남극에 살아요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'꿀벌 한 마리가 평생 만드는 꿀의 양은?',choices:['1kg','100g','한 숟가락 정도','1리터'],ans:2,exp:'꿀벌 한 마리가 평생 만드는 꿀은 약 한 숟가락 정도예요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'공룡이 멸종한 이유로 가장 유력한 것은?',choices:['홍수','운석 충돌','화산 폭발','인간의 사냥'],ans:1,exp:'약 6600만 년 전 거대한 운석이 지구와 충돌한 것이 원인으로 여겨져요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'연어는 알을 낳기 위해 어디로 가나요?',choices:['바다','강의 상류','호수','연못'],ans:1,exp:'연어는 자신이 태어난 강 상류로 돌아가 알을 낳아요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'고양이의 수염은 무슨 역할을 하나요?',choices:['장식','좁은 공간 감지','소리 듣기','냄새 맡기'],ans:1,exp:'고양이 수염은 좁은 공간을 통과할 수 있는지 감지해요!'},
+{type:'mc',cat:'animal',sub:'추가동물',q:'가장 독성이 강한 육지 동물은?',choices:['코브라','방울뱀','황금독화살개구리','전갈'],ans:2,exp:'황금독화살개구리는 매우 작지만 치명적인 독을 가졌어요!'},
+
+// ─── 재미있는 OX 퀴즈 추가 ───────────────────────
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'사람의 몸에는 뼈가 206개 있다.',ans:'O',exp:'어른의 경우 뼈가 206개예요. 아기 때는 300개 이상!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'지구에는 바다가 4개 있다.',ans:'X',exp:'지구의 바다는 태평양, 대서양, 인도양, 남극해, 북극해로 5개예요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'우유는 소의 피에서 만들어진다.',ans:'X',exp:'우유는 소의 유선에서 만들어져요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'토마토는 채소가 아닌 과일이다.',ans:'O',exp:'식물학적으로 토마토는 씨가 있어 과일로 분류돼요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'사람은 하루에 물을 2리터 이상 마시는 것이 좋다.',ans:'O',exp:'하루 권장 물 섭취량은 약 2리터예요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'손가락 관절을 꺾으면 소리가 나는 이유는 뼈가 부딪혀서다.',ans:'X',exp:'관절 속 기포가 터지는 소리예요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'태양은 별이다.',ans:'O',exp:'태양도 별이에요! 지구와 가까워서 크고 밝게 보이는 것뿐이에요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'달은 스스로 빛을 낸다.',ans:'X',exp:'달은 스스로 빛을 내지 못하고 태양빛을 반사해요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'모든 나비는 낮에만 활동한다.',ans:'X',exp:'나방은 주로 밤에 활동해요. 하지만 일부 나비도 밤에 활동해요!'},
+{type:'ox',cat:'ox',sub:'재미있는사실2',q:'세계에서 가장 많이 팔리는 과일은 바나나다.',ans:'O',exp:'바나나는 세계에서 가장 많이 소비되는 과일 중 하나예요!'},
+
+// ─── 추가 수학 퀴즈 ──────────────────────────────
+{type:'mc',cat:'math',sub:'추가수학',q:'4×4는 얼마인가요?',choices:['12','14','16','18'],ans:2,exp:'4×4=16이에요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'30-15는 얼마인가요?',choices:['10','12','15','18'],ans:2,exp:'30-15=15예요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'육각형의 변은 몇 개인가요?',choices:['4개','5개','6개','7개'],ans:2,exp:'육각형은 변이 6개, 꼭짓점도 6개예요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'1kg은 몇 g인가요?',choices:['10g','100g','1000g','10000g'],ans:2,exp:'1kg = 1000g이에요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'6×6은 얼마인가요?',choices:['30','36','42','48'],ans:1,exp:'6×6=36이에요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'1분은 몇 초인가요?',choices:['30초','60초','90초','100초'],ans:1,exp:'1분 = 60초예요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'100÷4는 얼마인가요?',choices:['20','25','30','35'],ans:1,exp:'100÷4=25예요!'},
+{type:'mc',cat:'math',sub:'추가수학',q:'2+2+2+2+2는 얼마인가요?',choices:['8','9','10','11'],ans:2,exp:'2를 5번 더하면 10이에요! 2×5=10이기도 해요!'},
+
+]; // end QBANK
+
+// ══════════════════════════════════════════════════════════
+//  GAME VARIABLES
+// ══════════════════════════════════════════════════════════
+const PCOLORS   = ['var(--c1)','var(--c2)','var(--c3d)','var(--c4)'];
+const PBGCOLORS = ['var(--c1l)','var(--c2l)','var(--c3l)','var(--c4l)'];
+
+let players=[], scores=[], qList=[], curQ=0;
+let buzzed=false, buzzWinner=-1, answered=false;
+let penalizedSet=new Set(); // players who got it wrong this round
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function startGame(){
+  const names=[
+    document.getElementById('p1').value.trim()||'빨간팀',
+    document.getElementById('p2').value.trim()||'파란팀',
+    document.getElementById('p3').value.trim(),
+    document.getElementById('p4').value.trim()
+  ].filter(n=>n);
+  players=names.slice(0,4);
+  scores=new Array(players.length).fill(0);
+
+  const catFilter=document.getElementById('q-cat').value;
+  const qCount=parseInt(document.getElementById('q-count').value);
+  let pool = catFilter==='all' ? QBANK : QBANK.filter(q=>q.cat===catFilter);
+  if(pool.length===0) pool=QBANK;
+  qList=shuffle(pool).slice(0,Math.min(qCount,pool.length));
+  curQ=0;
+  showScreen('game-screen');
+  loadQ();
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderSB(){
+  document.getElementById('scoreboard').innerHTML=players.map((p,i)=>`
+    <div class="sc-card ${buzzWinner===i?'buzzer':''}" id="sc${i}"
+      style="${buzzWinner===i?'border-color:'+PCOLORS[i]+';border-width:3px;':''}">
+      <div class="sc-name">${p}${penalizedSet.has(i)?'<span class="penalty-tag">패스</span>':''}</div>
+      <div class="sc-pts" style="color:${PCOLORS[i]}">${scores[i]}</div>
+    </div>`).join('');
+}
+
+function loadQ(){
+  buzzed=false; buzzWinner=-1; answered=false;
+  penalizedSet=new Set();
+  document.getElementById('reveal-bar').style.display='none';
+  document.getElementById('btn-reveal').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('buzz-winner-msg').innerHTML='';
+  document.getElementById('buzz-penalty-msg').innerHTML='';
+  document.getElementById('buzz-label').textContent='⚡ 아는 사람? 버튼을 눌러요!';
+  
+
+  const q=qList[curQ], total=qList.length;
+  document.getElementById('q-counter').textContent=`${curQ+1} / ${total}`;
+  document.getElementById('prog-fill').style.width=((curQ+1)/total*100)+'%';
+  document.getElementById('cat-pill').textContent=q.sub||q.cat;
+  document.getElementById('q-text').textContent=q.q;
+
+  const ia=document.getElementById('q-image-area');
+  ia.innerHTML = q.img ? `<div class="q-image-box" style="font-size:6rem">${q.img}</div>` : '';
+
+  renderChoices();
+  renderBuzzBtns();
+  lockChoices(true); // choices locked until buzz
+  renderSB();
+}
+
+function renderChoices(){
+  const q=qList[curQ];
+  const ca=document.getElementById('q-choices');
+  if(q.type==='ox'){
+    ca.innerHTML=`<div class="ox-wrap">
+      <div class="ox-btn o-btn" onclick="oxAns('O')">⭕</div>
+      <div class="ox-btn x-btn" onclick="oxAns('X')">❌</div>
+    </div>`;
+  } else {
+    ca.innerHTML=`<div class="mc-wrap">${q.choices.map((c,i)=>`
+      <button class="mc-btn" onclick="mcAns(${i})">
+        <span class="mc-num">${['①','②','③','④'][i]}</span>${c}
+      </button>`).join('')}</div>`;
+  }
+}
+
+function renderBuzzBtns(){
+  document.getElementById('buzz-btns').innerHTML=players.map((p,i)=>`
+    <button class="buzz-btn ${penalizedSet.has(i)?'penalized':''}" id="bz${i}" onclick="doBuzz(${i})"
+      style="background:${PBGCOLORS[i]};color:${PCOLORS[i]};border:2px solid ${PCOLORS[i]}"
+      ${penalizedSet.has(i)?'disabled':''}>
+      ${p} 버즈!
+    </button>`).join('');
+}
+
+function lockChoices(lock){
+  document.querySelectorAll('.ox-btn,.mc-btn').forEach(b=>{
+    b.style.pointerEvents = lock ? 'none' : 'auto';
+    b.style.opacity = lock ? '0.45' : '1';
+  });
+}
+
+function doBuzz(i){
+  if(buzzed||answered||penalizedSet.has(i)) return;
+  buzzed=true; buzzWinner=i;
+
+  document.querySelectorAll('.buzz-btn').forEach((b,j)=>{
+    b.disabled=true;
+    if(j!==i && !penalizedSet.has(j)) b.style.opacity='0.2';
+  });
+
+  document.getElementById('buzz-winner-msg').innerHTML=
+    `<span style="color:${PCOLORS[i]}">🎤 ${players[i]}님! 답을 선택하세요!</span>`;
+  document.getElementById('buzz-penalty-msg').innerHTML='';
+
+  lockChoices(false); // unlock choices for answering
+  renderSB();
+}
+
+function oxAns(val){
+  if(!buzzed||answered) return;
+  answered=true;
+  lockChoices(true);
+  const q=qList[curQ], ok=val===q.ans;
+  document.querySelectorAll('.ox-btn').forEach(b=>{
+    if(b.classList.contains('o-btn')&&q.ans==='O') b.classList.add('correct');
+    else if(b.classList.contains('x-btn')&&q.ans==='X') b.classList.add('correct');
+    else b.classList.add('wrong');
+  });
+  finishAnswer(ok, q.exp);
+}
+
+function mcAns(idx){
+  if(!buzzed||answered) return;
+  answered=true;
+  lockChoices(true);
+  const q=qList[curQ], ok=idx===q.ans;
+  document.querySelectorAll('.mc-btn').forEach((b,i)=>{
+    if(i===q.ans) b.classList.add('correct');
+    else if(i===idx) b.classList.add('wrong');
+  });
+  finishAnswer(ok, q.exp);
+}
+
+function finishAnswer(ok, exp){
+  const rb=document.getElementById('reveal-bar');
+
+  if(ok){
+    // ✅ 정답: +10점
+    scores[buzzWinner]+=10;
+    flashScore(buzzWinner, true);
+    rb.style.display='block';
+    rb.className='reveal-bar correct';
+    rb.innerHTML=`🎉 정답! <b>+10점</b>${exp?'<br><small style="font-weight:400;opacity:.8">'+exp+'</small>':''}`;
+    document.getElementById('buzz-winner-msg').innerHTML='';
+    document.getElementById('buzz-penalty-msg').innerHTML='';
+    document.getElementById('btn-reveal').style.display='none';
+    document.getElementById('btn-next').style.display='inline-block';
+    
+
+  } else {
+    // ❌ 오답: -5점 + 기회 이전
+    scores[buzzWinner]-=5;
+    flashScore(buzzWinner, false);
+    penalizedSet.add(buzzWinner);
+
+    const remaining=players.filter((_,i)=>!penalizedSet.has(i));
+
+    if(remaining.length===0){
+      // 모두 틀림 → 정답 공개
+      const q=qList[curQ];
+      const ans=q.type==='ox'?`정답: ${q.ans==='O'?'⭕':'❌'}`:`정답: ${q.choices[q.ans]}`;
+      rb.style.display='block';
+      rb.className='reveal-bar wrong';
+      rb.innerHTML=`😅 모두 틀렸어요! ${ans}${exp?'<br><small style="font-weight:400;opacity:.8">'+exp+'</small>':''}`;
+      document.getElementById('buzz-winner-msg').innerHTML='';
+      document.getElementById('buzz-penalty-msg').innerHTML='';
+      document.getElementById('btn-reveal').style.display='none';
+      document.getElementById('btn-next').style.display='inline-block';
+      
+
+    } else {
+      // 다음 사람에게 기회
+      buzzed=false; buzzWinner=-1; answered=false;
+
+      rb.style.display='block';
+      rb.className='reveal-bar wrong';
+      rb.innerHTML=`❌ 오답! <b>-5점</b> → ${remaining.map(p=>`<b>${p}</b>`).join(', ')}에게 기회!`;
+
+      document.getElementById('buzz-winner-msg').innerHTML='';
+      document.getElementById('buzz-penalty-msg').innerHTML='';
+      document.getElementById('buzz-label').textContent='🔄 다른 팀이 도전하세요!';
+
+      // 보기 초기화(오답 표시 지우기), 버즈 버튼 재렌더
+      renderChoices();
+      renderBuzzBtns();
+      lockChoices(true);
+
+      // 모두 포기할 수 있도록 정답보기 버튼 제공
+      document.getElementById('btn-reveal').style.display='inline-block';
+    }
+  }
+  renderSB();
+}
+
+function flashScore(i, positive){
+  const el=document.getElementById(`sc${i}`);
+  if(!el) return;
+  el.classList.remove('score-flash');
+  void el.offsetWidth;
+  el.classList.add('score-flash');
+  el.style.background=positive?'var(--c2l)':'var(--c1l)';
+  setTimeout(()=>{ el.style.background=''; el.classList.remove('score-flash'); }, 700);
+}
+
+function revealAnswer(){
+  const q=qList[curQ];
+  const ans=q.type==='ox'?`정답: ${q.ans==='O'?'⭕':'❌'}`:`정답: ${q.choices[q.ans]}`;
+  const rb=document.getElementById('reveal-bar');
+  rb.style.display='block';
+  rb.className='reveal-bar info';
+  rb.innerHTML=`👀 ${ans}${q.exp?'<br><small style="font-weight:400;opacity:.8">'+q.exp+'</small>':''}`;
+  document.getElementById('btn-reveal').style.display='none';
+  document.getElementById('btn-next').style.display='inline-block';
+  
+}
+
+function nextQ(){
+  curQ++;
+  if(curQ>=qList.length) showResults();
+  else loadQ();
+}
+
+function showResults(){
+  showScreen('result-screen');
+  makeConfetti();
+  const ranked=[...players.map((p,i)=>({p,s:scores[i],c:PCOLORS[i]}))]
+    .sort((a,b)=>b.s-a.s);
+  const medals=['🥇','🥈','🥉','4️⃣'];
+  document.getElementById('result-list').innerHTML=
+    ranked.map((r,i)=>`
+      <div class="result-row">
+        <span class="result-medal">${medals[i]}</span>
+        <div class="result-dot" style="background:${r.c}"></div>
+        <span class="result-name">${r.p}</span>
+        <span class="result-score" style="color:${r.c}">${r.s}점</span>
+      </div>`).join('');
+}
+
+function makeConfetti(){
+  const wrap=document.getElementById('confetti-wrap');
+  wrap.innerHTML='';
+  const colors=['#FF6B6B','#4ECDC4','#FFD93D','#A29BFE','#FF8E53','#2ECC71'];
+  for(let i=0;i<80;i++){
+    const d=document.createElement('div');
+    d.className='confetti-piece';
+    d.style.cssText=`left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*2}s;transform:rotate(${Math.random()*360}deg);width:${6+Math.random()*10}px;height:${8+Math.random()*14}px;`;
+    wrap.appendChild(d);
+  }
+  setTimeout(()=>wrap.innerHTML='',5000);
+}
+
+function restart(){
+  showScreen('title-screen');
+}
+</script>
+</body>
+</html>
