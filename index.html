@@ -344,6 +344,47 @@ body::before {
   transition: transform 0.15s;
 }
 .btn-restart:active { transform: scale(0.97); }
+
+/* ── home button ── */
+.btn-home {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-size: 17px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.btn-home:active { background: rgba(255,255,255,0.2); transform: scale(0.93); }
+
+/* ── confirm modal ── */
+#modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.68);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: #0f3460;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  padding: 32px 36px;
+  text-align: center; width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  animation: popIn 0.18s ease;
+}
+@keyframes popIn { from{transform:scale(0.86);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-emoji { font-size: 44px; margin-bottom: 10px; }
+.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btn {
+  flex: 1; padding: 13px 8px; border-radius: 12px; border: none;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: transform 0.12s;
+}
+.modal-btn:active { transform: scale(0.96); }
+.modal-cancel  { background: rgba(255,255,255,0.09); color: var(--text); border: 1.5px solid var(--border); }
+.modal-confirm { background: var(--c1); color: #fff; }
 </style>
 </head>
 <body>
@@ -415,6 +456,7 @@ body::before {
 <div id="game-screen" class="screen">
   <!-- Top progress bar -->
   <div class="g-topbar">
+    <button class="btn-home" onclick="confirmHome()" title="메뉴로 돌아가기">⌂</button>
     <span class="q-counter" id="q-counter">1 / 15</span>
     <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
     <span class="cat-pill" id="cat-pill">상식</span>
@@ -961,9 +1003,32 @@ function makeConfetti(){
 function restart(){
   showScreen('title-screen');
 }
+
+function confirmHome(){
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function closeModal(){
+  document.getElementById('modal-overlay').style.display='none';
+}
+function goHome(){
+  closeModal();
+  showScreen('title-screen');
+}
 </script>
-<script>
-if('serviceWorker' in navigator){
+<!-- ════════════════════════════════
+     HOME CONFIRM MODAL
+════════════════════════════════ -->
+<div id="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-emoji">🏠</div>
+    <div class="modal-title">메뉴로 돌아갈까요?</div>
+    <div class="modal-sub">현재 게임 진행 상황이 사라져요</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">계속 게임하기</button>
+      <button class="modal-btn modal-confirm" onclick="goHome()">메뉴로 이동</button>
+    </div>
+  </div>
+</div>
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(r => console.log('SW registered:', r.scope))
