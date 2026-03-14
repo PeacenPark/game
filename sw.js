@@ -1,4 +1,4 @@
-const CACHE = 'quiz-buzz-v2';
+const CACHE = 'quiz-buzz-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',
